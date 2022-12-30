@@ -17,7 +17,7 @@ import java.util.Map;
 @RequestMapping("/films")
 public class FilmController {
 
-    int id;
+    private int id;
 
     private final Map<Integer, Film> films = new HashMap<>();
 

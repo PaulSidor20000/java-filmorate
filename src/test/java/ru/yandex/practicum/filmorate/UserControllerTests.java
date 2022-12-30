@@ -14,12 +14,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTests {
 
-    String ASSERT_SIZE = "Wrong actual size";
-    String ASSERT_VALUE = "Wrong actual value";
-    String ASSERT_NULL = "Null point reference";
-    String ASSERT_TROWS_INVALID = "The method should trows ValidationException";
-    UserController userController;
-    User user;
+    private static final  String ASSERT_SIZE = "Wrong actual size";
+    private static final String ASSERT_VALUE = "Wrong actual value";
+    private static final String ASSERT_NULL = "Null point reference";
+    private static final String ASSERT_TROWS_INVALID = "The method should trows ValidationException";
+    private UserController userController;
+    private User user;
 
     @BeforeEach
     void beforeEach() {

@@ -16,12 +16,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class FilmControllerTests {
 
-    String ASSERT_SIZE = "Wrong actual size";
-    String ASSERT_VALUE = "Wrong actual value";
-    String ASSERT_NULL = "Null point reference";
-    String ASSERT_TROWS_INVALID = "The method should trows ValidationException";
-    FilmController filmController;
-    Film film;
+    private static final String ASSERT_SIZE = "Wrong actual size";
+    private static final String ASSERT_VALUE = "Wrong actual value";
+    private static final String ASSERT_NULL = "Null point reference";
+    private static final String ASSERT_TROWS_INVALID = "The method should trows ValidationException";
+    private FilmController filmController;
+    private Film film;
 
     @BeforeEach
     void beforeEach() {
