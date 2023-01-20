@@ -18,10 +18,10 @@ public class FilmValidator {
         if (film.getName() != null
                 && !film.getName().isEmpty()
         ) {
-            log.info("Поле Name - {} - прошло валидацию Film", film.getName());
+            log.info("The Name field \"{}\", passed Film validation", film.getName());
             return true;
         } else {
-            log.info("Поле Name - {} - не прошло валидацию Film", film.getName());
+            log.info("The Name field \"{}\", failed Film validation", film.getName());
         }
         return false;
     }
@@ -30,10 +30,10 @@ public class FilmValidator {
         if (film.getDescription() != null
                 && film.getDescription().length() <= MAX_DESCRIPTION_LENGTH
         ) {
-            log.info("Поле Description - {} - прошло валидацию Film", film.getDescription());
+            log.info("The Description field \"{}\", passed Film validation", film.getDescription());
             return true;
         } else {
-            log.info("Поле Description - {} - не прошло валидацию Film", film.getDescription());
+            log.info("The Description field \"{}\", failed Film validation", film.getDescription());
         }
         return false;
     }
@@ -42,20 +42,20 @@ public class FilmValidator {
         if (film.getReleaseDate() != null
                 && film.getReleaseDate().isAfter(MOVIE_BIRTHDAY)
         ) {
-            log.info("Поле ReleaseDate - {} - прошло валидацию Film", film.getReleaseDate());
+            log.info("The ReleaseDate field \"{}\", passed Film validation", film.getReleaseDate());
             return true;
         } else {
-            log.info("Поле ReleaseDate - {} - не прошло валидацию Film", film.getReleaseDate());
+            log.info("The ReleaseDate field \"{}\", failed Film validation", film.getReleaseDate());
         }
         return false;
     }
 
     public static boolean isDurationValid(Film film) {
         if (film.getDuration() > 0) {
-            log.info("Поле Duration - {} - прошло валидацию Film", film.getDuration());
+            log.info("The Duration field \"{}\", passed Film validation", film.getDuration());
             return true;
         } else {
-            log.info("Поле Duration - {} - не прошло валидацию Film", film.getDuration());
+            log.info("The Duration field \"{}\", failed Film validation", film.getDuration());
         }
         return false;
     }

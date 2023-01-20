@@ -16,10 +16,10 @@ public class UserValidator {
                 && !user.getEmail().isEmpty()
                 && user.getEmail().contains("@")
         ) {
-            log.info("Поле Email - {} - прошло валидацию User", user.getEmail());
+            log.info("The Email field \"{}\", passed User validation", user.getEmail());
             return true;
         } else {
-            log.info("Поле Email - {} - не прошло валидацию User", user.getEmail());
+            log.info("The Email field \"{}\", failed Film validation", user.getEmail());
         }
         return false;
     }
@@ -28,10 +28,10 @@ public class UserValidator {
         if (user.getLogin() != null
                 && !user.getLogin().isBlank() && !user.getLogin().contains(" ")
         ) {
-            log.info("Поле Login - {} - прошло валидацию User", user.getLogin());
+            log.info("The Login field \"{}\", passed User validation", user.getLogin());
             return true;
         } else {
-            log.info("Поле Login - {} - не прошло валидацию User", user.getLogin());
+            log.info("The Login field \"{}\", failed Film validation", user.getLogin());
         }
         return false;
     }
@@ -40,10 +40,10 @@ public class UserValidator {
         if (user.getName() != null
                 && !user.getName().isEmpty()
         ) {
-            log.info("Поле Name - {} - прошло валидацию User", user.getName());
+            log.info("The Name field \"{}\", passed User validation", user.getName());
             return true;
         } else {
-            log.info("Поле Name - {} - не прошло валидацию User", user.getName());
+            log.info("The Name field \"{}\", failed Film validation", user.getName());
         }
         return false;
     }
@@ -52,10 +52,10 @@ public class UserValidator {
         if (user.getBirthday() != null
                 && user.getBirthday().isBefore(LocalDate.now())
         ) {
-            log.info("Поле Birthday - {} - прошло валидацию User", user.getBirthday());
+            log.info("The Birthday field \"{}\", passed User validation", user.getBirthday());
             return true;
         } else {
-            log.info("Поле Birthday - {} - не прошло валидацию User", user.getBirthday());
+            log.info("The Birthday field \"{}\", failed Film validation", user.getBirthday());
         }
         return false;
     }

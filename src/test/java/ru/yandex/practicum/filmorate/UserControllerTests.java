@@ -6,24 +6,28 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controllers.UserController;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.servise.user.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTests {
-
     private static final  String ASSERT_SIZE = "Wrong actual size";
     private static final String ASSERT_VALUE = "Wrong actual value";
     private static final String ASSERT_NULL = "Null point reference";
-    private static final String ASSERT_TROWS_INVALID = "The method should trows ValidationException";
+    private static final String ASSERT_TROWS = "The method should trows an Exception";
     private UserController userController;
+    private InMemoryUserStorage storage;
     private User user;
 
     @BeforeEach
     void beforeEach() {
-        userController = new UserController();
+        storage = new InMemoryUserStorage();
+        userController = new UserController(storage, new UserService(storage));
 
         user = User.builder()
                 .email("mail@mail.com")
@@ -35,13 +39,13 @@ public class UserControllerTests {
 
     @AfterEach
     void afterEach() {
-        userController.clearUsers();
+        storage.clearUsers();
     }
 
     // create User
     @Test
     void setNewUserNormallyAndGetAllUsers() {
-        userController.setNewUser(user);
+        userController.addUser(Optional.of(user));
 
         assertEquals(1, userController.getAllUsers().size(), ASSERT_SIZE);
         assertEquals(user, userController.getAllUsers().get(0), ASSERT_VALUE);
@@ -59,18 +63,18 @@ public class UserControllerTests {
     @Test
     void setNewUserWrongLogin() {
         user.setLogin("");
-        assertThrows(ValidationException.class, () -> userController.setNewUser(user), ASSERT_TROWS_INVALID);
+        assertThrows(ValidationException.class, () -> userController.addUser(Optional.of(user)), ASSERT_TROWS);
         assertEquals(0, userController.getAllUsers().size(), ASSERT_SIZE);
 
         user.setLogin("   New  User  ");
-        assertThrows(ValidationException.class, () -> userController.setNewUser(user), ASSERT_TROWS_INVALID);
+        assertThrows(ValidationException.class, () -> userController.addUser(Optional.of(user)), ASSERT_TROWS);
         assertEquals(0, userController.getAllUsers().size(), ASSERT_SIZE);
     }
 
     @Test
     void setNewUserWrongName() {
         user.setName("");
-        userController.setNewUser(user);
+        userController.addUser(Optional.of(user));
 
         assertEquals("John22", userController.getAllUsers().get(0).getName(), ASSERT_VALUE);
         assertEquals(1, userController.getAllUsers().size(), ASSERT_SIZE);
@@ -79,29 +83,29 @@ public class UserControllerTests {
     @Test
     void setNewUserWrongEmail() {
         user.setEmail("mail.com");
-        assertThrows(ValidationException.class, () -> userController.setNewUser(user), ASSERT_TROWS_INVALID);
+        assertThrows(ValidationException.class, () -> userController.addUser(Optional.of(user)), ASSERT_TROWS);
         assertEquals(0, userController.getAllUsers().size(), ASSERT_SIZE);
     }
 
     @Test
     void setNewUserWrongBirthday() {
         user.setBirthday(LocalDate.of(2100, Month.JANUARY, 1));
-        assertThrows(ValidationException.class, () -> userController.setNewUser(user), ASSERT_TROWS_INVALID);
+        assertThrows(ValidationException.class, () -> userController.addUser(Optional.of(user)), ASSERT_TROWS);
         assertEquals(0, userController.getAllUsers().size(), ASSERT_SIZE);
     }
 
     // update User
     @Test
     void updateUserNormallyAndGetAllUsers() {
-        userController.setNewUser(user);
+        userController.addUser(Optional.of(user));
         user = User.builder()
-                .id(1)
+                .id(1L)
                 .login("johnsmith23")
                 .email("johnsmith2000@mail.com")
                 .name("John Smith Jr.")
                 .birthday(LocalDate.of(1999, Month.JANUARY, 1))
                 .build();
-        userController.updateUser(user);
+        userController.updateUser(Optional.of(user));
 
         assertEquals(1, userController.getAllUsers().size(), ASSERT_SIZE);
         assertEquals(user, userController.getAllUsers().get(0), ASSERT_VALUE);
@@ -118,16 +122,16 @@ public class UserControllerTests {
 
     @Test
     void updateUserWithWrongId() {
-        userController.setNewUser(user);
+        userController.addUser(Optional.of(user));
         user = User.builder()
-                .id(10)
+                .id(10L)
                 .login("johnsmith23")
                 .email("johnsmith2000@mail.com")
                 .name("John Smith Jr.")
                 .birthday(LocalDate.of(1999, Month.JANUARY, 1))
                 .build();
 
-        assertThrows(ValidationException.class, () -> userController.updateUser(user), ASSERT_TROWS_INVALID);
+        assertThrows(IllegalArgumentException.class, () -> userController.updateUser(Optional.of(user)), ASSERT_TROWS);
         assertEquals(1, userController.getAllUsers().size(), ASSERT_SIZE);
         assertEquals(1, userController.getAllUsers().get(0).getId(), ASSERT_SIZE);
     }

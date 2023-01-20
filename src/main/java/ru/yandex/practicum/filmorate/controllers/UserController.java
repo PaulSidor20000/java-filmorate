@@ -1,75 +1,85 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.ControllerParameterException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.servise.user.UserService;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import static ru.yandex.practicum.filmorate.validators.UserValidator.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
-@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-
-    private int id;
-
-    private final Map<Integer, User> users = new HashMap<>();
-
-    public void clearUsers() {
-        this.users.clear();
-    }
+    private final UserStorage storage;
+    private final UserService service;
 
     @GetMapping
     public List<User> getAllUsers() {
-        return new ArrayList<>(users.values());
+        return storage.findAllUsers();
     }
 
     @PostMapping
-    public User setNewUser(@RequestBody User user) {
-        if (isUserValidated(user)) {
-            user.setId(getNewId());
-            if (!isNameValid(user)) {
-                user.setName(user.getLogin());
-            }
-            log.info("Добавляем нового пользователя {}", user.getLogin());
-            users.put(user.getId(), user);
-            return user;
-        } else {
-            log.error("Пользователь {} - не прошёл валидацию", user.getName());
-            throw new ValidationException("User is not valid");
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public User addUser(@RequestBody Optional<User> user) {
+        return storage.addUser(user.orElseThrow(ControllerParameterException::new));
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user) {
-        if (isUserExist(user) && isUserValidated(user)) {
-            log.info("Обновляем данные пользователя {}", user.getId());
-            users.put(user.getId(), user);
-            return user;
-        } else {
-            log.error("Обновляемый пользователь {} - не прошёл валидацию", user.getId());
-            throw new ValidationException("User is not exist");
-        }
+    public User updateUser(@RequestBody Optional<User> user) {
+        return storage.updateUser(user.orElseThrow(ControllerParameterException::new));
     }
 
-    private int getNewId() {
-        return ++id;
+    // получить по id
+    @GetMapping("/{id}")
+    public User findUserById(@PathVariable(value = "id") Optional<Long> userId) {
+        return storage.findUserById(userId.orElseThrow(ControllerParameterException::new));
     }
 
-    private boolean isUserExist(User user) {
-        return users.containsKey(user.getId());
+    // добавление в друзья
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addToFriends(
+            @PathVariable(value = "id") Optional<Long> userId,
+            @PathVariable(value = "friendId") Optional<Long> friendId
+    ) {
+        return service.addToFriends(
+                userId.orElseThrow(ControllerParameterException::new),
+                friendId.orElseThrow(ControllerParameterException::new)
+        );
     }
 
-    private boolean isUserValidated(User user) {
-        return isEmailValid(user)
-                && isLoginValid(user)
-                && isBirthdayValid(user);
+    // удаление из друзей
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User deleteFromFriends(
+            @PathVariable(value = "id") Optional<Long> userId,
+            @PathVariable(value = "friendId") Optional<Long> friendId
+    ) {
+        return service.deleteFromFriends(
+                userId.orElseThrow(ControllerParameterException::new),
+                friendId.orElseThrow(ControllerParameterException::new)
+        );
+    }
+
+    // возвращаем список пользователей, являющихся его друзьями
+    @GetMapping("/{id}/friends")
+    public List<User> findFriends(@PathVariable(value = "id") Optional<Long> userId) {
+        return service.findFriends(userId.orElseThrow(ControllerParameterException::new));
+    }
+
+    // список друзей, общих с другим пользователем
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> findCommonFriends(
+            @PathVariable(value = "id") Optional<Long> userId,
+            @PathVariable(value = "otherId") Optional<Long> otherId
+    ) {
+        return service.findCommonFriends(
+                userId.orElseThrow(ControllerParameterException::new),
+                otherId.orElseThrow(ControllerParameterException::new)
+        );
     }
 
 }
