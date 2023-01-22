@@ -15,43 +15,42 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserStorage storage;
 
-    // Добавление в друзья
+    public List<User> findAllUsers() {
+        return storage.findAllUsers();
+    }
+
+    public User addUser(User user) {
+        return storage.addUser(user);
+    }
+
+    public User updateUser(User user) {
+        return storage.updateUser(user);
+    }
+
+    public User findUserById(Long userId) {
+        return storage.findUserById(userId);
+    }
+
     public User addToFriends(Long userId, Long friendsId) {
         User user = storage.findUserById(userId);
         User friend = storage.findUserById(friendsId);
 
-        if (
-                user.getFriends().add(friend.getId())
-                        && friend.getFriends().add(user.getId())
-        ) {
-            log.info("Friend: \"{}\", successfully added to User: \"{}\" list", friend.getName(), user.getName());
-            return storage.updateUser(user);
-        }
-        log.debug("Friend \"{}\" is already exist in User \"{}\" list", friend.getName(), user.getName());
-        throw new IllegalArgumentException(
-                String.format("Friend %s is already exist in User %s list", friend.getName(), user.getName()
-                ));
+        user.getFriends().add(friend.getId());
+        friend.getFriends().add(user.getId());
+        log.info("Friend: \"{}\", successfully added to User: \"{}\" list", friend.getName(), user.getName());
+        return user;
     }
 
-    // Удаление из друзей
     public User deleteFromFriends(Long userId, Long friendsId) {
         User user = storage.findUserById(userId);
         User friend = storage.findUserById(friendsId);
 
-        if (
-                user.getFriends().remove(friend.getId())
-                        && friend.getFriends().remove(user.getId())
-        ) {
-            log.info("Friend: \"{}\", successfully deleted from User: \"{}\" list", friend.getName(), user.getName());
-            return storage.updateUser(user);
-        }
-        log.debug("Friend \"{}\" is not exist in User \"{}\" list", friend.getName(), user.getName());
-        throw new IllegalArgumentException(
-                String.format("Friend %s is not exist in User %s list", friend.getName(), user.getName()
-                ));
+        user.getFriends().remove(friend.getId());
+        friend.getFriends().remove(user.getId());
+        log.info("Friend: \"{}\", successfully deleted from User: \"{}\" list", friend.getName(), user.getName());
+        return user;
     }
 
-    // Вывод списка друзей
     public List<User> findFriends(Long userId) {
         User user = storage.findUserById(userId);
 
@@ -60,7 +59,6 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    // Вывод списка общих друзей
     public List<User> findCommonFriends(Long userId, Long otherId) {
         User user1 = storage.findUserById(userId);
         User user2 = storage.findUserById(otherId);

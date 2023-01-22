@@ -2,74 +2,58 @@ package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ControllerParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.servise.film.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
-    private final FilmStorage storage;
     private final FilmService service;
 
     @GetMapping
     public List<Film> findAllFilms() {
-        return storage.findAllFilms();
+        return service.findAllFilms();
     }
 
     @PostMapping
-    public Film addFilm(@RequestBody Optional<Film> film) {
-        return storage.addFilm(film.orElseThrow(ControllerParameterException::new));
+    public Film addFilm(@RequestBody Film film) {
+        return service.addFilm(film);
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Optional<Film> film) {
-        return storage.updateFilm(film.orElseThrow(ControllerParameterException::new));
+    public Film updateFilm(@RequestBody Film film) {
+        return service.updateFilm(film);
     }
 
-    // получить по id
     @GetMapping("/{id}")
-    public Film findFilmById(@PathVariable(value = "id") Optional<Long> filmId) {
-        return storage.findFilmById(filmId.orElseThrow(ControllerParameterException::new));
+    public Film findFilmById(@PathVariable(value = "id") Long filmId) {
+        return service.findFilmById(filmId);
     }
 
-    // пользователь ставит лайк фильму
     @PutMapping("/{id}/like/{userId}")
     public Film addLiketoFilm(
-            @PathVariable(value = "id") Optional<Long> filmId,
-            @PathVariable(value = "userId") Optional<Long> userId
+            @PathVariable(value = "id") Long filmId,
+            @PathVariable(value = "userId") Long userId
     ) {
-        return service.addLiketoFilm(
-                filmId.orElseThrow(ControllerParameterException::new),
-                userId.orElseThrow(ControllerParameterException::new)
-        );
+        return service.addLike(filmId, userId);
     }
 
-    // пользователь удаляет лайк
     @DeleteMapping("/{id}/like/{userId}")
     public Film deleteLikeOfFilm(
-            @PathVariable(value = "id") Optional<Long> filmId,
-            @PathVariable(value = "userId") Optional<Long> userId
+            @PathVariable(value = "id") Long filmId,
+            @PathVariable(value = "userId") Long userId
     ) {
-
-        return service.deleteLikeOfFilm(
-                filmId.orElseThrow(ControllerParameterException::new),
-                userId.orElseThrow(ControllerParameterException::new)
-        );
+        return service.deleteLike(filmId, userId);
     }
 
-    // Возвращает список из первых count фильмов по количеству лайков.
-    // Если значение параметра count не задано, верните первые 10.
     @GetMapping("/popular")
     public List<Film> findMostPopularFilms(
-            @RequestParam(defaultValue = "10", required = false) Optional<Long> count
+            @RequestParam(defaultValue = "10", required = false) Long count
     ) {
-        return service.findMostPopularFilms(count.orElseThrow(ControllerParameterException::new));
+        return service.findMostPopularFilms(count);
     }
 
 }

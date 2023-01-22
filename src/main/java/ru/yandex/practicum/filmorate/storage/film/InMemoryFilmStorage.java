@@ -25,48 +25,46 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public Film findFilmById(Long filmId) {
+        Film film = films.get(filmId);
+
+        if (film != null) {
+            return film;
+        }
+        String errorMessage = String.format("Film id: %s, not exist", filmId);
+        log.error(errorMessage);
+        throw new IllegalArgumentException(errorMessage);
+    }
+
+    @Override
     public Film addFilm(Film film) {
         if (isFilmValidated(film)) {
             film.setId(getNewId());
             films.put(film.getId(), film);
-            log.info("New Film: \"{}\" {}, was successfully added.", film.getName(), film.getReleaseDate().getYear());
+            log.info(String.format("New Film: %s, was successfully added.", film.getName()));
             return film;
         }
-
-        log.error("Film: \"{}\", failed validation", film.getName());
-        throw new ValidationException(String.format("Film: %s, is not valid", film.getName()));
-    }
-
-    @Override
-    public Film findFilmById(Long filmId) {
-        if (films.containsKey(filmId) && films.get(filmId) != null) {
-            return films.get(filmId);
-        }
-
-        throw new IllegalArgumentException(String.format("Film with ID: %s, not exist or null pointing", filmId));
+        String errorMessage = String.format("Film: %s, is not valid", film.getName());
+        log.error(errorMessage);
+        throw new ValidationException(errorMessage);
     }
 
     @Override
     public Film updateFilm(Film film) {
         if (isFilmExist(film) && isFilmValidated(film)) {
             films.put(film.getId(), film);
-            log.info("Film: \"{}\", was successfully updated", film.getName());
+            log.info(String.format("Film: %s, was successfully updated", film.getName()));
             return film;
         }
-
-        log.error("Film: \"{}\", not found for updating", film.getName());
-        throw new IllegalArgumentException(String.format("Film: %s, is not exist", film.getName()));
+        String errorMessage = String.format("Film: %s, is not exist", film.getName());
+        log.error(errorMessage);
+        throw new IllegalArgumentException(errorMessage);
     }
 
     @Override
     public void deleteFilm(Film film) {
-        if (isFilmExist(film)) {
-            films.remove(film.getId());
-            log.info("Film: \"{}\", was successfully deleted.", film.getName());
-        }
-
-        log.error("Film: \"{}\", not found for deleting", film.getName());
-        throw new ValidationException(String.format("Film: %s, is not exist", film.getName()));
+        films.remove(film.getId());
+        log.info(String.format("Film: %s, was successfully deleted.", film.getName()));
     }
 
     private Long getNewId() {

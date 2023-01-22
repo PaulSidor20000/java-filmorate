@@ -3,83 +3,65 @@ package ru.yandex.practicum.filmorate.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ControllerParameterException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.servise.user.UserService;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-    private final UserStorage storage;
     private final UserService service;
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return storage.findAllUsers();
+    public List<User> findAllUsers() {
+        return service.findAllUsers();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User addUser(@RequestBody Optional<User> user) {
-        return storage.addUser(user.orElseThrow(ControllerParameterException::new));
+    public User addUser(@RequestBody User user) {
+        return service.addUser(user);
     }
 
     @PutMapping
-    public User updateUser(@RequestBody Optional<User> user) {
-        return storage.updateUser(user.orElseThrow(ControllerParameterException::new));
+    public User updateUser(@RequestBody User user) {
+        return service.updateUser(user);
     }
 
-    // получить по id
     @GetMapping("/{id}")
-    public User findUserById(@PathVariable(value = "id") Optional<Long> userId) {
-        return storage.findUserById(userId.orElseThrow(ControllerParameterException::new));
+    public User findUserById(@PathVariable(value = "id") Long userId) {
+        return service.findUserById(userId);
     }
 
-    // добавление в друзья
     @PutMapping("/{id}/friends/{friendId}")
     public User addToFriends(
-            @PathVariable(value = "id") Optional<Long> userId,
-            @PathVariable(value = "friendId") Optional<Long> friendId
+            @PathVariable(value = "id") Long userId,
+            @PathVariable(value = "friendId") Long friendId
     ) {
-        return service.addToFriends(
-                userId.orElseThrow(ControllerParameterException::new),
-                friendId.orElseThrow(ControllerParameterException::new)
-        );
+        return service.addToFriends(userId, friendId);
     }
 
-    // удаление из друзей
     @DeleteMapping("/{id}/friends/{friendId}")
     public User deleteFromFriends(
-            @PathVariable(value = "id") Optional<Long> userId,
-            @PathVariable(value = "friendId") Optional<Long> friendId
+            @PathVariable(value = "id") Long userId,
+            @PathVariable(value = "friendId") Long friendId
     ) {
-        return service.deleteFromFriends(
-                userId.orElseThrow(ControllerParameterException::new),
-                friendId.orElseThrow(ControllerParameterException::new)
-        );
+        return service.deleteFromFriends(userId, friendId);
     }
 
-    // возвращаем список пользователей, являющихся его друзьями
     @GetMapping("/{id}/friends")
-    public List<User> findFriends(@PathVariable(value = "id") Optional<Long> userId) {
-        return service.findFriends(userId.orElseThrow(ControllerParameterException::new));
+    public List<User> findFriends(@PathVariable(value = "id") Long userId) {
+        return service.findFriends(userId);
     }
 
-    // список друзей, общих с другим пользователем
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> findCommonFriends(
-            @PathVariable(value = "id") Optional<Long> userId,
-            @PathVariable(value = "otherId") Optional<Long> otherId
+            @PathVariable(value = "id") Long userId,
+            @PathVariable(value = "otherId") Long otherId
     ) {
-        return service.findCommonFriends(
-                userId.orElseThrow(ControllerParameterException::new),
-                otherId.orElseThrow(ControllerParameterException::new)
-        );
+        return service.findCommonFriends(userId, otherId);
     }
 
 }

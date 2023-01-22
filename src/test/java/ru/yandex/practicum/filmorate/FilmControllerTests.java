@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,7 +27,7 @@ class FilmControllerTests {
     @BeforeEach
     void beforeEach() {
         storage = new InMemoryFilmStorage();
-        filmController = new FilmController(storage, new FilmService(storage, new InMemoryUserStorage()));
+        filmController = new FilmController(new FilmService(storage, new InMemoryUserStorage()));
 
         film = Film.builder()
                 .name("Time")
@@ -46,7 +45,7 @@ class FilmControllerTests {
     // create Film
     @Test
     void setNewFilmNormallyAndGetAllFilms() {
-        filmController.addFilm(Optional.of(film));
+        filmController.addFilm(film);
 
         assertEquals(1, filmController.findAllFilms().size(), ASSERT_SIZE);
         assertEquals(film, filmController.findAllFilms().get(0), ASSERT_VALUE);
@@ -64,7 +63,7 @@ class FilmControllerTests {
     @Test
     void setNewFilmWrongName() {
         film.setName("");
-        assertThrows(ValidationException.class, () -> filmController.addFilm(Optional.of(film)), ASSERT_TROWS);
+        assertThrows(ValidationException.class, () -> filmController.addFilm(film), ASSERT_TROWS);
         assertEquals(0, filmController.findAllFilms().size(), ASSERT_SIZE);
     }
 
@@ -77,28 +76,28 @@ class FilmControllerTests {
                 "Description more then two hundred symbols" +
                 "Description more then two hundred symbols"
         );
-        assertThrows(ValidationException.class, () -> filmController.addFilm(Optional.of(film)), ASSERT_TROWS);
+        assertThrows(ValidationException.class, () -> filmController.addFilm(film), ASSERT_TROWS);
         assertEquals(0, filmController.findAllFilms().size(), ASSERT_SIZE);
     }
 
     @Test
     void setNewFilmWrongReleaseDate() {
         film.setReleaseDate(LocalDate.of(1800, Month.JANUARY, 1));
-        assertThrows(ValidationException.class, () -> filmController.addFilm(Optional.of(film)), ASSERT_TROWS);
+        assertThrows(ValidationException.class, () -> filmController.addFilm(film), ASSERT_TROWS);
         assertEquals(0, filmController.findAllFilms().size(), ASSERT_SIZE);
     }
 
     @Test
     void setNewFilmWrongDuration() {
         film.setDuration(-1);
-        assertThrows(ValidationException.class, () -> filmController.addFilm(Optional.of(film)), ASSERT_TROWS);
+        assertThrows(ValidationException.class, () -> filmController.addFilm(film), ASSERT_TROWS);
         assertEquals(0, filmController.findAllFilms().size(), ASSERT_SIZE);
     }
 
     // update Film
     @Test
     void updateFilmNormallyAndGetAllFilms() {
-        filmController.addFilm(Optional.of(film));
+        filmController.addFilm(film);
         film = Film.builder()
                 .id(1L)
                 .name("New Film")
@@ -106,7 +105,7 @@ class FilmControllerTests {
                 .releaseDate(LocalDate.of(2022, Month.FEBRUARY, 10))
                 .duration(200)
                 .build();
-        filmController.updateFilm(Optional.of(film));
+        filmController.updateFilm(film);
 
         assertEquals(1, filmController.findAllFilms().size(), ASSERT_SIZE);
         assertEquals(film, filmController.findAllFilms().get(0), ASSERT_VALUE);
@@ -123,7 +122,7 @@ class FilmControllerTests {
 
     @Test
     void updateFilmWithWrongId() {
-        filmController.addFilm(Optional.of(film));
+        filmController.addFilm(film);
         film = Film.builder()
                 .id(10L)
                 .name("New Film")
@@ -132,7 +131,7 @@ class FilmControllerTests {
                 .duration(200)
                 .build();
 
-        assertThrows(IllegalArgumentException.class, () -> filmController.updateFilm(Optional.of(film)), ASSERT_TROWS);
+        assertThrows(IllegalArgumentException.class, () -> filmController.updateFilm(film), ASSERT_TROWS);
         assertEquals(1, filmController.findAllFilms().size(), ASSERT_SIZE);
         assertEquals(1, filmController.findAllFilms().get(0).getId(), ASSERT_SIZE);
     }

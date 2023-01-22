@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.exceptions.ControllerParameterException;
 import ru.yandex.practicum.filmorate.exceptions.ErrorResponse;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
@@ -14,12 +13,6 @@ public class ErrorHandler {
     @ExceptionHandler({ValidationException.class})
     public ErrorResponse validationHandler(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({ControllerParameterException.class})
-    public ErrorResponse controllerMethodHandler(final RuntimeException e) {
-        return new ErrorResponse("Wrong controller method parameter or null pointing.");
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
