@@ -1,73 +1,59 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.servise.film.FilmService;
 
-import static ru.yandex.practicum.filmorate.validators.FilmValidator.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
-
-    private int id;
-
-    private final Map<Integer, Film> films = new HashMap<>();
-
-    public void clearFilms() {
-        this.films.clear();
-    }
+    private final FilmService service;
 
     @GetMapping
-    public List<Film> getAllFilms() {
-        return new ArrayList<>(films.values());
+    public List<Film> findAllFilms() {
+        return service.findAllFilms();
     }
 
     @PostMapping
-    public Film setNewFilm(@RequestBody Film film) {
-        if (isFilmValidated(film)) {
-            film.setId(getNewId());
-            log.info("Добавляем новый фильм {}, {} года.", film.getName(), film.getReleaseDate().getYear());
-            films.put(film.getId(), film);
-            return film;
-        } else {
-            log.error("Новый фильм {} - не прошёл валидацию", film.getName());
-            throw new ValidationException("Film is not valid");
-        }
+    public Film addFilm(@RequestBody Film film) {
+        return service.addFilm(film);
     }
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
-        if (isFilmExist(film) && isFilmValidated(film)) {
-            log.info("Обновляем фильм {}, {}.", film.getName(), film.getName());
-            films.put(film.getId(), film);
-            return film;
-        } else {
-            log.error("Обновляемый фильм {} - не прошёл валидацию", film.getName());
-            throw new ValidationException("Film is not exist");
-        }
+        return service.updateFilm(film);
     }
 
-    private int getNewId() {
-        return ++id;
+    @GetMapping("/{id}")
+    public Film findFilmById(@PathVariable(value = "id") Long filmId) {
+        return service.findFilmById(filmId);
     }
 
-    private boolean isFilmExist(Film film) {
-        return films.containsKey(film.getId());
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLiketoFilm(
+            @PathVariable(value = "id") Long filmId,
+            @PathVariable(value = "userId") Long userId
+    ) {
+        return service.addLike(filmId, userId);
     }
 
-    private boolean isFilmValidated(Film film) {
-        return isNameValid(film)
-                && isDescriptionValid(film)
-                && isReleaseDateValid(film)
-                && isDurationValid(film);
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film deleteLikeOfFilm(
+            @PathVariable(value = "id") Long filmId,
+            @PathVariable(value = "userId") Long userId
+    ) {
+        return service.deleteLike(filmId, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> findMostPopularFilms(
+            @RequestParam(defaultValue = "10", required = false) Long count
+    ) {
+        return service.findMostPopularFilms(count);
     }
 
 }
