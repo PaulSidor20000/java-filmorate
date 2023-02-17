@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.servise.film.FilmService;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -19,34 +21,39 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film addFilm(@RequestBody Film film) {
+    public Film addFilm(@Valid @RequestBody Film film) {
         return service.addFilm(film);
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film film) {
+    public Film updateFilm(@Valid @RequestBody Film film) {
         return service.updateFilm(film);
     }
 
     @GetMapping("/{id}")
-    public Film findFilmById(@PathVariable(value = "id") Long filmId) {
+    public Film findFilmById(
+            @PathVariable(value = "id") Long filmId
+    ) {
         return service.findFilmById(filmId);
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Film addLiketoFilm(
+    public ResponseEntity<String> addLikeToFilm(
             @PathVariable(value = "id") Long filmId,
             @PathVariable(value = "userId") Long userId
     ) {
-        return service.addLike(filmId, userId);
+        service.addLike(filmId, userId);
+        return ResponseEntity.ok("Like has been added");
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Film deleteLikeOfFilm(
+    public ResponseEntity<String> deleteLikeOfFilm(
             @PathVariable(value = "id") Long filmId,
             @PathVariable(value = "userId") Long userId
     ) {
-        return service.deleteLike(filmId, userId);
+        service.deleteLike(filmId, userId);
+
+        return ResponseEntity.ok("Like has been deleted");
     }
 
     @GetMapping("/popular")

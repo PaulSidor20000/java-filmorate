@@ -8,8 +8,7 @@ import java.time.LocalDate;
 @Slf4j
 public class UserValidator {
 
-    private UserValidator() {
-    }   // утилитарный класс, конструкторы не нужны
+    private UserValidator() {}
 
     public static boolean isEmailValid(User user) {
         if (user.getEmail() != null

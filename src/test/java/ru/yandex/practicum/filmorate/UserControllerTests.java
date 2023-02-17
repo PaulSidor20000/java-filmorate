@@ -3,10 +3,13 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.controllers.UserController;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.servise.user.UserService;
+import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.storage.friendship.FriendshipDbStorage;
+import ru.yandex.practicum.filmorate.storage.friendship.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -14,7 +17,7 @@ import java.time.Month;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserControllerTests {
+class UserControllerTests {
     private static final  String ASSERT_SIZE = "Wrong actual size";
     private static final String ASSERT_VALUE = "Wrong actual value";
     private static final String ASSERT_NULL = "Null point reference";
@@ -26,7 +29,7 @@ public class UserControllerTests {
     @BeforeEach
     void beforeEach() {
         storage = new InMemoryUserStorage();
-        userController = new UserController(new UserService(storage));
+        userController = new UserController(new UserService(storage, null));
 
         user = User.builder()
                 .email("mail@mail.com")
