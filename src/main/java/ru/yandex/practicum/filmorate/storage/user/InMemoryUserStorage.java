@@ -13,7 +13,7 @@ import java.util.Map;
 import static ru.yandex.practicum.filmorate.validators.UserValidator.*;
 
 @Slf4j
-@Component
+@Component("inMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
     private Long id = 0L;
     private final Map<Long, User> users = new HashMap<>();
@@ -24,7 +24,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-      public User findUserById(Long userId) {
+    public User findUserById(Long userId) {
         User user = users.get(userId);
 
         if (user != null) {
@@ -61,12 +61,6 @@ public class InMemoryUserStorage implements UserStorage {
         String errorMessage = String.format("User: %s, is not exist", user.getName());
         log.error(errorMessage);
         throw new IllegalArgumentException(errorMessage);
-    }
-
-    @Override
-    public void deleteUser(User user) {
-        users.remove(user.getId());
-        log.info(String.format("User: %s, was successfully deleted", user.getName()));
     }
 
     public void clearUsers() {

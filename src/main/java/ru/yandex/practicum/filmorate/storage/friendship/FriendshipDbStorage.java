@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,7 +15,7 @@ import java.util.List;
 @Primary
 @RequiredArgsConstructor
 @Component("friendshipDbStorage")
-public class FriendshipDbStorage implements FriendshipStorage{
+public class FriendshipDbStorage implements FriendshipStorage {
     private final JdbcTemplate jdbcTemplate;
     private static final String SQL_ADD_FRIEND_TO_USER
             = "INSERT INTO friendship (user1_id, user2_id) VALUES(?, ?)";
@@ -32,30 +33,39 @@ public class FriendshipDbStorage implements FriendshipStorage{
             + " OR user_id IN (SELECT user1_id FROM friendship WHERE user2_id = ? AND friendship_status = false)";
     private static final String SQL_DELETE_FROM_FRIEND
             = "DELETE FROM friendship WHERE USER1_ID=? AND USER2_ID=?";
-    private static final String SQL_GET_FRIENDS_OF_USER
+    private static final String SQL_GET_FRIENDS_IDS_OF_USER
             = "SELECT user_id FROM users"
             + " WHERE user_id IN (SELECT user2_id FROM friendship WHERE user1_id = ? OR friendship_status = true)";
+    private static final String SQL_GET_FRIENDS_OF_USER
+            = "SELECT * FROM users"
+            + " WHERE user_id IN (SELECT user2_id FROM friendship WHERE user1_id = ? OR friendship_status = true)";
     private static final String SQL_GET_COMMON_FRIENDS
-            = "SELECT user_id FROM users"
+            = "SELECT * FROM users"
             + " WHERE user_id IN (SELECT user2_id FROM friendship WHERE user1_id = ? OR friendship_status = true)"
             + " INTERSECT"
             + " SELECT * FROM users"
             + " WHERE user_id IN (SELECT user2_id FROM friendship WHERE user1_id = ? OR friendship_status = true)";
 
     @Override
-    public void addToFriend(Long userId, Long friendsId) {
-        jdbcTemplate.update(SQL_ADD_FRIEND_TO_USER,
+    public boolean addToFriend(Long userId, Long friendsId) {
+        int count = jdbcTemplate.update(SQL_ADD_FRIEND_TO_USER,
                 userId,
                 friendsId
         );
+        log.info("{} friend have been added", count);
+
+        return count > 0;
     }
 
     @Override
-    public void addFriendsConfirmation(Long userId, Long friendsId) {
-        jdbcTemplate.update(SQL_ADD_FRIENDS_CONFIRMATION,
+    public boolean addFriendsConfirmation(Long userId, Long friendsId) {
+        int count = jdbcTemplate.update(SQL_ADD_FRIENDS_CONFIRMATION,
                 userId,
                 friendsId
         );
+        log.info("{} friend have been confirmed", count);
+
+        return count > 0;
     }
 
     @Override
@@ -68,8 +78,8 @@ public class FriendshipDbStorage implements FriendshipStorage{
     }
 
     @Override
-    public List<Long> getFriends(Long userId) {
-        return jdbcTemplate.query(SQL_GET_FRIENDS_OF_USER,
+    public List<Long> getFriendsIds(Long userId) {
+        return jdbcTemplate.query(SQL_GET_FRIENDS_IDS_OF_USER,
                 (rs, rowNum) -> setFriendsIds(rs),
                 userId
         );
@@ -85,16 +95,27 @@ public class FriendshipDbStorage implements FriendshipStorage{
     }
 
     @Override
-    public void deleteFromFriends(Long userId, Long friendsId) {
-        jdbcTemplate.update(SQL_DELETE_FROM_FRIEND,
+    public boolean deleteFromFriends(Long userId, Long friendsId) {
+        int count = jdbcTemplate.update(SQL_DELETE_FROM_FRIEND,
                 userId,
                 friendsId
         );
+        log.info("{} User have been removed from Friend", count);
+
+        return count > 0;
     }
 
-    public List<Long> getCommonFriends(Long userId, Long otherId) {
+    @Override
+    public List<User> findFriends(Long userId) {
+        return jdbcTemplate.query(SQL_GET_FRIENDS_OF_USER,
+                (rs, rowNum) -> setUser(rs),
+                userId
+        );
+    }
+
+    public List<User> findCommonFriends(Long userId, Long otherId) {
         return jdbcTemplate.query(SQL_GET_COMMON_FRIENDS,
-                (rs, rowNum) -> setFriendsIds(rs),
+                (rs, rowNum) -> setUser(rs),
                 userId,
                 otherId
         );
@@ -102,6 +123,17 @@ public class FriendshipDbStorage implements FriendshipStorage{
 
     private Long setFriendsIds(ResultSet rs) throws SQLException {
         return rs.getLong("user_id");
+    }
+
+    private User setUser(ResultSet rs) throws SQLException {
+        return User.builder()
+                .id(rs.getLong("user_id"))
+                .email(rs.getString("email"))
+                .login(rs.getString("login"))
+                .name(rs.getString("name"))
+                .birthday(rs.getDate("birthday").toLocalDate())
+                .friends(getFriendsIds(rs.getLong("user_id")))
+                .build();
     }
 
 }

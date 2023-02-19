@@ -13,5 +13,4 @@ public interface UserStorage {
 
     User updateUser(User user);
 
-    void deleteUser(User user);
 }

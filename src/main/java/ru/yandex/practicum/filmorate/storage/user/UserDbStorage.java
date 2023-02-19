@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.friendship.FriendshipDbStorage;
 
@@ -32,8 +33,6 @@ public class UserDbStorage implements UserStorage {
             = "INSERT INTO USERS (EMAIL, LOGIN, NAME, BIRTHDAY) VALUES(?, ?, ?, ?)";
     private static final String SQL_UPDATE_USER
             = "UPDATE USERS SET EMAIL=?, LOGIN=?, NAME=?, BIRTHDAY=? WHERE USER_ID=?";
-    private static final String SQL_DELETE_USER
-            = "DELETE FROM USERS WHERE USER_ID=?";
 
     @Override
     public List<User> findAllUsers() {
@@ -44,10 +43,16 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User findUserById(Long userId) {
-        return jdbcTemplate.queryForObject(SQL_FIND_USER_BY_ID,
+        User user = jdbcTemplate.queryForObject(SQL_FIND_USER_BY_ID,
                 (rs, rowNum) -> setUser(rs),
                 userId
         );
+        if (user != null) {
+            return user;
+        }
+        String errorMessage = String.format("User ID: %s, not exist", userId);
+        log.error(errorMessage);
+        throw new IllegalArgumentException(errorMessage);
     }
 
     @Override
@@ -55,6 +60,7 @@ public class UserDbStorage implements UserStorage {
         if (user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
+        User newUser;
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
@@ -66,11 +72,20 @@ public class UserDbStorage implements UserStorage {
             return stmt;
         }, keyHolder);
 
-        return findUserById(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        newUser = findUserById(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        if (newUser != null) {
+            log.info(String.format("New User: %s, was successfully added", user.getLogin()));
+            return newUser;
+        }
+        String errorMessage = String.format("User: %s, is not valid", user.getName());
+        log.error(errorMessage);
+        throw new ValidationException(errorMessage);
     }
 
     @Override
     public User updateUser(User user) {
+        User updateUser;
+
         jdbcTemplate.update(SQL_UPDATE_USER,
                 user.getEmail(),
                 user.getLogin(),
@@ -79,11 +94,14 @@ public class UserDbStorage implements UserStorage {
                 user.getId()
         );
 
-        return findUserById(user.getId());
-    }
-    @Override
-    public void deleteUser(User user) {
-        jdbcTemplate.update(SQL_DELETE_USER, user.getId());
+        updateUser = findUserById(user.getId());
+        if (updateUser != null) {
+            log.info(String.format("User: %s, was successfully updated", user.getName()));
+            return updateUser;
+        }
+        String errorMessage = String.format("User: %s, is not exist", user.getName());
+        log.error(errorMessage);
+        throw new IllegalArgumentException(errorMessage);
     }
 
     private User setUser(ResultSet rs) throws SQLException {
@@ -93,7 +111,7 @@ public class UserDbStorage implements UserStorage {
                 .login(rs.getString("login"))
                 .name(rs.getString("name"))
                 .birthday(rs.getDate("birthday").toLocalDate())
-                .friends(friendshipDbStorage.getFriends(rs.getLong("user_id")))
+                .friends(friendshipDbStorage.getFriendsIds(rs.getLong("user_id")))
                 .build();
     }
 

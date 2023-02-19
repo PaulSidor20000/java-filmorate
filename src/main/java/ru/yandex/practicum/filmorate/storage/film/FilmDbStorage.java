@@ -33,7 +33,7 @@ public class FilmDbStorage implements FilmStorage {
     private final LikeDbStorage likeDbStorage;
     private final MPARatingDbStorage mpaRatingDbStorage;
     private static final String SQL_FIND_ALL_FILMS
-            = "SELECT f.*, mpa.mpa_rating"
+            = "SELECT f.*, mpa.mpa_rating_name"
             + " FROM films f"
             + " LEFT JOIN mpa_rating mpa ON mpa.mpa_rating_id = f.mpa_rating_id";
     private static final String SQL_FIND_FILM_BY_ID
@@ -42,8 +42,6 @@ public class FilmDbStorage implements FilmStorage {
             = "INSERT INTO FILMS (NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_RATING_ID) VALUES(?, ?, ?, ?, ?)";
     private static final String SQL_UPDATE_FILM
             = "UPDATE FILMS SET NAME=?, DESCRIPTION=?, RELEASE_DATE=?, DURATION=?, MPA_RATING_ID=? WHERE FILM_ID=?";
-    private static final String SQL_DELETE_FILM
-            = "DELETE FROM FILMS WHERE FILM_ID=?";
     private static final String SQL_ADD_GENRE_LINK
             = "MERGE INTO genre_link (film_id, genre_id) KEY (film_id, genre_id) VALUES(?, ?)";
     private static final String SQL_DELETE_GENRES_OF_FILM
@@ -58,10 +56,16 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film findFilmById(Long filmId) {
-        return jdbcTemplate.queryForObject(SQL_FIND_FILM_BY_ID,
+        Film film = jdbcTemplate.queryForObject(SQL_FIND_FILM_BY_ID,
                 (rs, rowNum) -> setFilm(rs),
                 filmId
         );
+        if (film != null) {
+            return film;
+        }
+        String errorMessage = String.format("Film id: %s, not exist", filmId);
+        log.error(errorMessage);
+        throw new IllegalArgumentException(errorMessage);
     }
 
     @Override
@@ -69,6 +73,7 @@ public class FilmDbStorage implements FilmStorage {
         if (!isReleaseDateValid(film)) {
             throw new ValidationException("The date of the Film is not valid");
         }
+        Film newFilm;
         KeyHolder keyHolder = new GeneratedKeyHolder();
         List<Genre> genres = film.getGenres();
 
@@ -94,11 +99,20 @@ public class FilmDbStorage implements FilmStorage {
                                     genre.getId()));
         }
 
-        return findFilmById((Objects.requireNonNull(keyHolder.getKey()).longValue()));
+        newFilm = findFilmById((Objects.requireNonNull(keyHolder.getKey()).longValue()));
+        if (newFilm != null) {
+            log.info(String.format("New Film: %s, was successfully added.", newFilm.getName()));
+
+            return newFilm;
+        }
+        String errorMessage = String.format("Film: %s, is not valid", film.getName());
+        log.error(errorMessage);
+        throw new ValidationException(errorMessage);
     }
 
     @Override
     public Film updateFilm(Film film) {
+        Film updateFilm;
         if (!isReleaseDateValid(film)) {
             throw new ValidationException("The date of the Film is not valid");
         }
@@ -123,12 +137,14 @@ public class FilmDbStorage implements FilmStorage {
                                     genre.getId()));
         }
 
-        return findFilmById(film.getId());
-    }
-
-    @Override
-    public void deleteFilm(Film film) {
-        jdbcTemplate.update(SQL_DELETE_FILM, film.getId());
+        updateFilm = findFilmById(film.getId());
+        if (updateFilm != null) {
+            log.info(String.format("Film: %s, was successfully updated", film.getName()));
+            return findFilmById(film.getId());
+        }
+        String errorMessage = String.format("Film: %s, is not exist", film.getName());
+        log.error(errorMessage);
+        throw new IllegalArgumentException(errorMessage);
     }
 
     private Film setFilm(ResultSet rs) throws SQLException {

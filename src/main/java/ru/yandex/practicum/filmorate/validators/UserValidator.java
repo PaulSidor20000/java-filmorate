@@ -8,7 +8,8 @@ import java.time.LocalDate;
 @Slf4j
 public class UserValidator {
 
-    private UserValidator() {}
+    private UserValidator() {
+    }
 
     public static boolean isEmailValid(User user) {
         if (user.getEmail() != null
@@ -17,9 +18,9 @@ public class UserValidator {
         ) {
             log.info("The Email field \"{}\", passed User validation", user.getEmail());
             return true;
-        } else {
-            log.info("The Email field \"{}\", failed Film validation", user.getEmail());
         }
+        log.error("The Email field \"{}\", failed Film validation", user.getEmail());
+
         return false;
     }
 
@@ -29,9 +30,9 @@ public class UserValidator {
         ) {
             log.info("The Login field \"{}\", passed User validation", user.getLogin());
             return true;
-        } else {
-            log.info("The Login field \"{}\", failed Film validation", user.getLogin());
         }
+        log.error("The Login field \"{}\", failed Film validation", user.getLogin());
+
         return false;
     }
 
@@ -41,9 +42,9 @@ public class UserValidator {
         ) {
             log.info("The Name field \"{}\", passed User validation", user.getName());
             return true;
-        } else {
-            log.info("The Name field \"{}\", failed Film validation", user.getName());
         }
+        log.error("The Name field \"{}\", failed Film validation", user.getName());
+
         return false;
     }
 
@@ -53,9 +54,9 @@ public class UserValidator {
         ) {
             log.info("The Birthday field \"{}\", passed User validation", user.getBirthday());
             return true;
-        } else {
-            log.info("The Birthday field \"{}\", failed Film validation", user.getBirthday());
         }
+        log.error("The Birthday field \"{}\", failed Film validation", user.getBirthday());
+
         return false;
     }
 

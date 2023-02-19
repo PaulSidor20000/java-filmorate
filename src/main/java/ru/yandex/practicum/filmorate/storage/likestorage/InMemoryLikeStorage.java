@@ -8,6 +8,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Primary
 @RequiredArgsConstructor
@@ -42,6 +46,14 @@ public class InMemoryLikeStorage implements LikeStorage {
         log.debug("Failed Like deleting, userId: {}, filmId: {}", userId, filmId);
 
         return false;
+    }
+
+    @Override
+    public List<Film> findMostPopularFilms(Long count) {
+        return filmStorage.findAllFilms().stream()
+                .sorted(Comparator.comparing(film -> film.getLikes().size() * -1))
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
 }

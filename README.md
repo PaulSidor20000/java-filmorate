@@ -31,7 +31,7 @@ SELECT *
 FROM users
 WHERE user_id IN (SELECT user2_id FROM friendship WHERE user1_id = 1 AND friendship_status = true)
 OR  user_id IN (SELECT user1_id FROM friendship WHERE user2_id = 1 AND friendship_status = true)
-UNION   --INTERSECT (if we need intersection only)
+INTERSECT
 SELECT *
 FROM users
 WHERE user_id IN (SELECT user2_id FROM friendship WHERE user1_id = 2 AND friendship_status = true)
@@ -41,7 +41,6 @@ ORDER BY user_id;
 # 5. Top 10 films by likes
 SELECT f.*
 FROM films f join likes l ON f.film_id = l.film_id
-WHERE like_status = TRUE
 GROUP BY f.film_id
 ORDER BY COUNT(l.user_id) DESC
 LIMIT 10;
@@ -50,8 +49,7 @@ LIMIT 10;
 SELECT f.*
 FROM films f join likes l ON f.film_id = l.film_id
 WHERE f.film_id IN (SELECT film_id FROM genre_link WHERE genre_id IN
-                   (SELECT genre_id FROM genre WHERE genre = 'Drama'))
-AND like_status = true
+                   (SELECT genre_id FROM genre WHERE genre_name = 'Drama'))
 GROUP BY f.film_id
 ORDER BY COUNT(l.user_id) DESC
 LIMIT 10;

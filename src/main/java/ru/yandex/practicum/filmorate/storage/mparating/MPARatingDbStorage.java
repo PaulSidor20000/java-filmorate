@@ -28,9 +28,9 @@ public class MPARatingDbStorage implements MPARatingStorage{
     private static final String SQL_FIND_RATING_BY_ID
             = SQL_FIND_ALL_RATINGS + " WHERE mpa.mpa_rating_id = ?";
     private static final String SQL_ADD_RATING
-            = "INSERT INTO mpa_rating (MPA_RATING) VALUES(?)";
+            = "INSERT INTO mpa_rating (MPA_RATING_NAME) VALUES(?)";
     private static final String SQL_UPDATE_RATING
-            = "UPDATE mpa_rating SET MPA_RATING=? WHERE MPA_RATING_ID=?";
+            = "UPDATE mpa_rating SET MPA_RATING_NAME=? WHERE MPA_RATING_ID=?";
     private static final String SQL_DELETE_RATING
             = "DELETE FROM mpa_rating WHERE MPA_RATING_ID=?";
 
@@ -81,7 +81,7 @@ public class MPARatingDbStorage implements MPARatingStorage{
     private MPARating setMPARating(ResultSet rs) throws SQLException {
         return MPARating.builder()
                 .id(rs.getInt("mpa_rating_id"))
-                .name(rs.getString("mpa_rating"))
+                .name(rs.getString("mpa_rating_name"))
                 .build();
     }
 

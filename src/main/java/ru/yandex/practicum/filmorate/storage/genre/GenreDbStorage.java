@@ -31,13 +31,13 @@ public class GenreDbStorage implements GenreStorage {
             + " FROM genre g"
             + " WHERE g.genre_id = ?";
     private static final String SQL_ADD_GENRE
-            = "INSERT INTO genre (GENRE) VALUES(?)";
+            = "INSERT INTO genre (GENRE_NAME) VALUES(?)";
     private static final String SQL_UPDATE_GENRE
-            = "UPDATE genre SET genre=? WHERE genre_id=?";
+            = "UPDATE genre SET genre_name=? WHERE genre_id=?";
     private static final String SQL_DELETE_GENRE
             = "DELETE FROM genre WHERE genre_id=?";
     private static final String SQL_FIND_GENRES_OF_FILM
-            = "SELECT g.genre_id, g.genre"
+            = "SELECT g.genre_id, g.genre_name"
             + " FROM films f"
             + " JOIN genre_link gl ON gl.film_id = f.film_id"
             + " JOIN genre g ON g.genre_id = gl.genre_id"
@@ -97,7 +97,7 @@ public class GenreDbStorage implements GenreStorage {
     public Genre setGenre(ResultSet rs) throws SQLException {
         return Genre.builder()
                 .id(rs.getObject("genre_id", Integer.class))
-                .name(rs.getString("genre"))
+                .name(rs.getString("genre_name"))
                 .build();
     }
 

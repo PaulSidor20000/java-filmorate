@@ -61,12 +61,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         throw new IllegalArgumentException(errorMessage);
     }
 
-    @Override
-    public void deleteFilm(Film film) {
-        films.remove(film.getId());
-        log.info(String.format("Film: %s, was successfully deleted.", film.getName()));
-    }
-
     private Long getNewId() {
         return ++id;
     }
