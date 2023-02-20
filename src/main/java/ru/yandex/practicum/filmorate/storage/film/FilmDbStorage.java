@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MPARating;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.likestorage.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.mparating.MPARatingDbStorage;
@@ -18,8 +19,11 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.validators.FilmValidator.*;
 
@@ -157,6 +161,58 @@ public class FilmDbStorage implements FilmStorage {
                 .genres(genreDbStorage.findGenresByFilmId(rs.getLong("film_id")))
                 .mpa(mpaRatingDbStorage.findRatingById(rs.getInt("mpa_rating_id")))
                 .likes(likeDbStorage.getUsersLikesFilm(rs.getLong("film_id")))
+                .build();
+    }
+
+    // Testing of getting MODEL
+
+    private static final String SQL_FIND_MODEL_FILMS
+            = "SELECT f.*, mpa.mpa_rating_name, g.genre_name, l.user_id"
+            + " FROM films f"
+            + " LEFT JOIN mpa_rating mpa ON mpa.mpa_rating_id = f.mpa_rating_id"
+            + " LEFT JOIN genre_link gl ON gl.film_id = f.film_id"
+            + " LEFT JOIN genre g ON g.genre_id = gl.genre_id"
+            + " LEFT JOIN likes l ON l.film_id = f.film_id";
+
+    public List<Film> getaFilm() {
+        List<Map<String, Object>> map = jdbcTemplate.queryForList(SQL_FIND_MODEL_FILMS);
+        return map.stream()
+                .map(this::setFilmModel)
+                .collect(Collectors.toList());
+    }
+
+    private Film setFilmModel(Map<String, Object> o) {
+        return Film.builder()
+                .id(Long.valueOf((Integer) o.get("FILM_ID")))
+                .name((String) o.get("NAME"))
+                .description((String) o.get("DESCRIPTION"))
+                .releaseDate(((Date) o.get("RELEASE_DATE")).toLocalDate())
+                .duration((Integer) o.get("DURATION"))
+                .mpa(setMPAModel((Integer) o.get("MPA_RATING_ID"), (String) o.get("MPA_RATING_NAME")))
+                .genres(setGenreModels((Integer) o.get("GENRE_ID"), (String) o.get("GENRE_NAME")))
+                .likes(setLikes((Integer) o.get("USER_ID")))
+                .build();
+    }
+
+    private List<Long> setLikes(Integer userId) {
+        return List.of(Long.valueOf(userId));
+    }
+
+    private List<Genre> setGenreModels(Integer genreId, String genreName) {
+        List<Genre> genres = new ArrayList<>();
+        genres.add(
+                Genre.builder()
+                        .id(genreId)
+                        .name(genreName)
+                        .build()
+        );
+        return genres;
+    }
+
+    private MPARating setMPAModel(Integer mpaRatingId, String mpaRatingName) {
+        return MPARating.builder()
+                .id(mpaRatingId)
+                .name(mpaRatingName)
                 .build();
     }
 
