@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.like.LikeService;
@@ -30,6 +31,10 @@ public class FilmService {
 
     public Film findFilmById(Long filmId) {
         return filmStorage.findFilmById(filmId);
+    }
+
+    public boolean deleteFilmById(Long filmId) {
+        return filmStorage.deleteFilm(filmId);
     }
 
     public boolean addLike(Long filmId, Long userId) {

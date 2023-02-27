@@ -34,17 +34,23 @@ public class FriendshipDbStorage implements FriendshipStorage {
     private static final String SQL_DELETE_FROM_FRIEND
             = "DELETE FROM friendship WHERE USER1_ID=? AND USER2_ID=?";
     private static final String SQL_GET_FRIENDS_IDS_OF_USER
-            = "SELECT user_id FROM users"
+            = "SELECT *"
+            + " FROM users"
             + " WHERE user_id IN (SELECT user2_id FROM friendship WHERE user1_id = ? OR friendship_status = true)";
     private static final String SQL_GET_FRIENDS_OF_USER
             = "SELECT * FROM users"
-            + " WHERE user_id IN (SELECT user2_id FROM friendship WHERE user1_id = ? OR friendship_status = true)";
+            + " WHERE user_id IN (SELECT user2_id FROM friendship WHERE user1_id = ?)"
+            + " OR user_id IN (SELECT user1_id FROM friendship WHERE user2_id = ? AND friendship_status = TRUE)";
     private static final String SQL_GET_COMMON_FRIENDS
-            = "SELECT * FROM users"
-            + " WHERE user_id IN (SELECT user2_id FROM friendship WHERE user1_id = ? OR friendship_status = true)"
+            = "SELECT *"
+            + " FROM users"
+            + " WHERE user_id IN (SELECT user2_id FROM friendship WHERE user1_id = ?)"
+            + " OR user_id IN (SELECT user1_id FROM friendship WHERE user2_id = ? AND friendship_status = TRUE)"
             + " INTERSECT"
-            + " SELECT * FROM users"
-            + " WHERE user_id IN (SELECT user2_id FROM friendship WHERE user1_id = ? OR friendship_status = true)";
+            + " SELECT *"
+            + " FROM users"
+            + " WHERE user_id IN (SELECT user2_id FROM friendship WHERE user1_id = ?)"
+            + " OR user_id IN (SELECT user1_id FROM friendship WHERE user2_id = ? AND friendship_status = TRUE)";
 
     @Override
     public boolean addToFriend(Long userId, Long friendsId) {
@@ -109,6 +115,7 @@ public class FriendshipDbStorage implements FriendshipStorage {
     public List<User> findFriends(Long userId) {
         return jdbcTemplate.query(SQL_GET_FRIENDS_OF_USER,
                 (rs, rowNum) -> setUser(rs),
+                userId,
                 userId
         );
     }
@@ -117,6 +124,8 @@ public class FriendshipDbStorage implements FriendshipStorage {
         return jdbcTemplate.query(SQL_GET_COMMON_FRIENDS,
                 (rs, rowNum) -> setUser(rs),
                 userId,
+                userId,
+                otherId,
                 otherId
         );
     }

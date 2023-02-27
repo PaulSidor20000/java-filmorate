@@ -21,7 +21,6 @@ import java.util.Objects;
 @Component("genreDbStorage")
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
-
     private static final String SQL_FIND_ALL_GENRES
             = "SELECT *"
             + " FROM genre g"

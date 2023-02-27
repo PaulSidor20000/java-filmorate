@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
@@ -17,8 +18,11 @@ import ru.yandex.practicum.filmorate.service.user.UserService;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -106,6 +110,14 @@ class FilmDbTestsTests extends TestEnvironment {
         assertThat(newFilm.getMpa(), equalTo(mpa1));
         assertThat(newFilm.getGenres(), equalTo(List.of()));
         assertThat(newFilm.getLikes(), equalTo(List.of()));
+    }
+
+    @Test
+    void deleteFilmByIdTest() {
+        boolean isDeleted = filmService.deleteFilmById(1L);
+
+        assertThat(isDeleted, equalTo(true));
+        assertThrows(EmptyResultDataAccessException.class, () -> filmService.findFilmById(1L));
     }
 
     @Test

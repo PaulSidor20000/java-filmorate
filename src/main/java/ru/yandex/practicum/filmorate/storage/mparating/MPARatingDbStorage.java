@@ -19,9 +19,8 @@ import java.util.Objects;
 @Primary
 @RequiredArgsConstructor
 @Component("mpaRatingDbStorage")
-public class MPARatingDbStorage implements MPARatingStorage{
+public class MPARatingDbStorage implements MPARatingStorage {
     private final JdbcTemplate jdbcTemplate;
-
     private static final String SQL_FIND_ALL_RATINGS
             = "SELECT *"
             + " FROM mpa_rating mpa";
@@ -37,14 +36,14 @@ public class MPARatingDbStorage implements MPARatingStorage{
     @Override
     public List<MPARating> findAllRatings() {
         return jdbcTemplate.query(SQL_FIND_ALL_RATINGS,
-                (rs, rowNum) -> setMPARating(rs)
+                this::setMPARating
         );
     }
 
     @Override
     public MPARating findRatingById(Integer mpaRatingId) {
         return jdbcTemplate.queryForObject(SQL_FIND_RATING_BY_ID,
-                (rs, rowNum) -> setMPARating(rs),
+                this::setMPARating,
                 mpaRatingId
         );
     }
@@ -61,8 +60,8 @@ public class MPARatingDbStorage implements MPARatingStorage{
                 keyHolder
         );
 
-            return findRatingById(Objects.requireNonNull(keyHolder.getKey()).intValue());
-        }
+        return findRatingById(Objects.requireNonNull(keyHolder.getKey()).intValue());
+    }
 
     @Override
     public MPARating updateRating(MPARating mpaRating) {
@@ -74,11 +73,11 @@ public class MPARatingDbStorage implements MPARatingStorage{
     }
 
     @Override
-     public void deleteRating(MPARating mpaRating) {
+    public void deleteRating(MPARating mpaRating) {
         jdbcTemplate.update(SQL_DELETE_RATING, mpaRating.getId());
     }
 
-    private MPARating setMPARating(ResultSet rs) throws SQLException {
+    public MPARating setMPARating(ResultSet rs, int rowSet) throws SQLException {
         return MPARating.builder()
                 .id(rs.getInt("mpa_rating_id"))
                 .name(rs.getString("mpa_rating_name"))

@@ -31,6 +31,10 @@ INSERT INTO genre (genre_name) VALUES('Триллер');
 INSERT INTO genre (genre_name) VALUES('Документальный');
 INSERT INTO genre (genre_name) VALUES('Боевик');
 
+--INSERT INTO mpa (mpa_name) values('G'), ('PG'), ('PG-13'), ('R'), ('NC-17');
+
+--INSERT INTO genres (genre_name) values('Комедия'), ('Драма'), ('Мультфильм'), ('Триллер'), ('Документальный'), ('Боевик');
+
 --INSERT INTO films (name, description, release_date, duration, mpa_rating_id) VALUES('Back to the Future', 'Seventeen-year-old Marty McFly came home early yesterday. 30 years earlier', '1985-07-03', 116, 2);
 --INSERT INTO films (name, description, release_date, duration, mpa_rating_id) VALUES('Pulp Fiction', 'Just because you are a character does not mean you have character', '1994-05-21', 154, 4);
 --INSERT INTO films (name, description, release_date, duration, mpa_rating_id) VALUES('WALL·E', 'Love is a matter of technique', '2008-06-21', 98, 1);

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -9,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+
+import java.sql.SQLException;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -20,8 +21,8 @@ class MainTest {
     private final FilmDbStorage filmDbStorage;
 
     @Test
-    void test() {
-        filmDbStorage.getaFilm();
-        System.out.println(filmDbStorage.getaFilm());
+    void test() throws SQLException {
+        System.out.println(filmDbStorage.findAllFilms() + "\n");
+        System.out.println(filmDbStorage.findFilmById(1L));
     }
 }

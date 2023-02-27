@@ -46,7 +46,7 @@ INSERT INTO genre_link (film_id, genre_id) VALUES(3, 1);
 INSERT INTO genre_link (film_id, genre_id) VALUES(4, 6);
 INSERT INTO genre_link (film_id, genre_id) VALUES(4, 4);
 INSERT INTO genre_link (film_id, genre_id) VALUES(4, 2);
-INSERT INTO genre_link (film_id, genre_id) VALUES(5, 1);
+--INSERT INTO genre_link (film_id, genre_id) VALUES(5, 1);
 
 INSERT INTO users (email, login, name, birthday) VALUES('user1@mail.ru', 'user1', 'Jack1', '2000-10-10');
 INSERT INTO users (email, login, name, birthday) VALUES('user2@mail.ru', 'user2', 'John2', '2001-11-15');
@@ -64,7 +64,7 @@ INSERT INTO likes (film_id, user_id) VALUES(3, 3);
 INSERT INTO likes (film_id, user_id) VALUES(3, 4);
 INSERT INTO likes (film_id, user_id) VALUES(3, 5);
 INSERT INTO likes (film_id, user_id) VALUES(4, 5);
-INSERT INTO likes (film_id, user_id) VALUES(5, 5);
+--INSERT INTO likes (film_id, user_id) VALUES(5, 5);
 
 INSERT INTO friendship (user1_id, user2_id, friendship_status) VALUES(1, 5, true);
 INSERT INTO friendship (user1_id, user2_id, friendship_status) VALUES(1, 4, true);
@@ -74,4 +74,4 @@ INSERT INTO friendship (user1_id, user2_id, friendship_status) VALUES(2, 5, true
 INSERT INTO friendship (user1_id, user2_id, friendship_status) VALUES(2, 3, true);
 INSERT INTO friendship (user1_id, user2_id, friendship_status) VALUES(2, 1, true);
 INSERT INTO friendship (user1_id, user2_id) VALUES(4, 5);
-MERGE INTO friendship (user1_id, user2_id, friendship_status) KEY (user1_id, user2_id) VALUES(4, 5, true);
+--MERGE INTO friendship (user1_id, user2_id, friendship_status) KEY (user1_id, user2_id) VALUES(4, 5, true);
