@@ -62,9 +62,14 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteFilm(Film film) {
-        films.remove(film.getId());
-        log.info(String.format("Film: %s, was successfully deleted.", film.getName()));
+    public boolean deleteFilm(Long filmId) {
+        if (films.containsKey(filmId)) {
+            films.remove(filmId);
+            log.info(String.format("Film: %s, was deleted", filmId));
+            return true;
+        }
+        log.error(String.format("Failed to delete Film: %s", filmId));
+        return false;
     }
 
     private Long getNewId() {

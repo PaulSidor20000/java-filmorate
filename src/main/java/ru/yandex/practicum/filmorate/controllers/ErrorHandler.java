@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -13,6 +14,11 @@ public class ErrorHandler {
     @ExceptionHandler({ValidationException.class})
     public ErrorResponse validationHandler(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
+    }
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler({EmptyResultDataAccessException.class})
+    public ErrorResponse emptyExistDBHandler(final RuntimeException e) {
+        return new ErrorResponse("The element is not exist - " + e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

@@ -17,7 +17,7 @@ public class FilmValidator {
             log.info("The Name field \"{}\", passed Film validation", film.getName());
             return true;
         }
-        log.info("The Name field \"{}\", failed Film validation", film.getName());
+        log.error("The Name field \"{}\", failed Film validation", film.getName());
         return false;
     }
 
@@ -26,7 +26,7 @@ public class FilmValidator {
             log.info("The Description field \"{}\", passed Film validation", film.getDescription());
             return true;
         }
-        log.info("The Description field \"{}\", failed Film validation", film.getDescription());
+        log.error("The Description field \"{}\", failed Film validation", film.getDescription());
         return false;
     }
 
@@ -35,7 +35,7 @@ public class FilmValidator {
             log.info("The ReleaseDate field \"{}\", passed Film validation", film.getReleaseDate());
             return true;
         }
-        log.info("The ReleaseDate field \"{}\", failed Film validation", film.getReleaseDate());
+        log.error("The ReleaseDate field \"{}\", failed Film validation", film.getReleaseDate());
         return false;
     }
 
@@ -44,7 +44,7 @@ public class FilmValidator {
             log.info("The Duration field \"{}\", passed Film validation", film.getDuration());
             return true;
         }
-        log.info("The Duration field \"{}\", failed Film validation", film.getDuration());
+        log.error("The Duration field \"{}\", failed Film validation", film.getDuration());
         return false;
     }
 

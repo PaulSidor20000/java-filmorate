@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.servise.user.UserService;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -21,12 +23,12 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User addUser(@RequestBody User user) {
+    public User addUser(@Valid @RequestBody User user) {
         return service.addUser(user);
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user) {
+    public User updateUser(@Valid @RequestBody User user) {
         return service.updateUser(user);
     }
 
@@ -36,19 +38,21 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public User addToFriends(
+    public ResponseEntity<String> addToFriend(
             @PathVariable(value = "id") Long userId,
             @PathVariable(value = "friendId") Long friendId
     ) {
-        return service.addToFriends(userId, friendId);
+        service.addToFriend(userId, friendId);
+        return ResponseEntity.ok("Friend has been added");
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public User deleteFromFriends(
+    public ResponseEntity<String> deleteFromFriends(
             @PathVariable(value = "id") Long userId,
             @PathVariable(value = "friendId") Long friendId
     ) {
-        return service.deleteFromFriends(userId, friendId);
+        service.deleteFromFriends(userId, friendId);
+        return ResponseEntity.ok("Friend has been deleted");
     }
 
     @GetMapping("/{id}/friends")
